@@ -1,38 +1,28 @@
 {
   "lanes": [
     {
-      "id": "ordered",
+      "id": "ORDERED",
       "title": "New Orders",
-      "label": "2/2",
-      "cards": [
-        {"id": "E120", "title": "Seat: E120", "description": "hot dog: 2, Coke: 2"},
-        {"id": "F230", "title": "Seat: E120", "description": "hot dog: 10, Coke: 20"},
-        {"id": "A49", "title": "Seat: E120", "description": "Coke: 2"},
-        {"id": "C76", "title": "Seat: E120", "description": "Beer: 5"}
-      ]
+      "cards": []
     },
     {
-      "id": "in_progress",
+      "id": "IN_PROGRESS",
       "title": "In Progress",
-      "label": "0/0",
       "cards": []
     },
     {
-      "id": "delivering",
+      "id": "DELIVERING",
       "title": "Out for Delivering",
-      "label": "0/0",
       "cards": []
     },
     {
-      "id": "completed",
+      "id": "COMPLETED",
       "title": "Completed Orders",
-      "label": "0/0",
       "cards": []
     },
     {
-      "id": "cancelled",
+      "id": "CANCELLED",
       "title": "Cancelled Orders",
-      "label": "0/0",
       "cards": []
     }
   ]

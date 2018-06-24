@@ -1,0 +1,32 @@
+
+body {
+  font-family: 'Lato', sans-serif;
+}
+.background {
+  background-color: #8d0909;
+}
+
+.panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  background-color: #e7bd86;
+  border-top: 1px solid #d2ad77;
+  padding: 10px 30px;
+}
+.panel-header {
+  color: #870406;
+}
+.panel-element {
+  text-align: right;
+  color: #870406;
+}
+@media (max-width: 767px) {
+  .panel {
+    padding: 10px 10px;
+  }
+  .panel-header {
+    font-size: 22px;
+  }
+}

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 
-import RestaurantManager from './containers/RestaurantManager'
+import RestaurantManager from './containers/RestaurantManager';
+import './style/RestaurantManager.css';
 
 class App extends Component {
   render() {
