@@ -6,55 +6,103 @@ import PanelHeader from '../components/Panel/PanelHeader/PanelHeader';
 import PanelElement from '../components/Panel/PanelElement/PanelElement';
 
 import data from '../data/data.json';
+import { updateObject } from '../utils/utility';
 
 class RestaurantManager extends Component {
   state = {
     testOrders: [
       {
-        seatNumber: 'E29',
-        order: [
+        "id": 0,
+        "status": "ORDERED",
+        "seatNumber": "A273",
+        orderItems: [
           {
-            "product": "Coca Cola",
-            "quanity": 5
+            "product": "Coke Cola",
+            "quanity": 5,
+            "price": 2.5
           },
           {
             "product": "Beer",
-            "quanity": 1
+            "quanity": 1,
+            "price": 5
           }
         ]
       },
       {
-        seatNumber: 'A273',
-        order: [
+        "id": 1,
+        "status": "IN_PROGRESS",
+        "seatNumber": "A273",
+        orderItems: [
           {
             "product": "Hot Dog",
-            "quanity": 5
+            "quanity": 1,
+            "price": 3.5
           },
           {
             "product": "Beer",
-            "quanity": 6
+            "quanity": 1,
+            "price": 5
           }
         ]
       },
       {
-        seatNumber: 'H765',
-        order: [
+        "id": 2,
+        "status": "IN_PROGRESS",
+        "seatNumber": "C12",
+        orderItems: [
           {
-            "product": "Coca Cola",
-            "quanity": 5
-          },
-          {
-            "product": "Popcorn",
-            "quanity": 2
+            "product": "Hot Dog",
+            "quanity": 5,
+            "price": 3.5
           },
           {
             "product": "Beer",
-            "quanity": 1
+            "quanity": 6,
+            "price": 5
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "status": "DELIVERING",
+        "seatNumber": "H02",
+        orderItems: [
+          {
+            "product": "Hot Dog",
+            "quanity": 2,
+            "price": 3.5
+          },
+          {
+            "product": "Beer",
+            "quanity": 1,
+            "price": 5
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "status": "COMPLETED",
+        "seatNumber": "B29",
+        orderItems: [
+          {
+            "product": "Coke Cola",
+            "quanity": 1,
+            "price": 2.5
+          },
+          {
+            "product": "Hot Dog",
+            "quanity": 2,
+            "price": 3.5
+          },
+          {
+            "product": "Beer",
+            "quanity": 1,
+            "price": 5
           }
         ]
       },
     ],
-    totalPrice: 0,
+    totalPrice: 0
   }
 
   setEventBus = eventBus => {
@@ -63,35 +111,89 @@ class RestaurantManager extends Component {
 
   // On start up get orders from server, (or predefinded state), and push or our data.json.
   componentDidMount(){
-    this.state.testOrders.map(orders => {
-      const orderItems = orders.order.map(items => {
+    // Get a few test states
+    this.state.testOrders.map(order => {
+      const orderItems = order.orderItems.map(items => {
         return `${items.product}: ${items.quanity} \n`;
       });
       const newOrder = {
-        "laneId": "ORDERED",
-        "id": `${orders.seatNumber}`,
-        "title": `${orders.seatNumber}`,
+        "laneId": order.status,
+        "id": `${order.id}`,
+        "title": `${order.seatNumber}`,
         "description": `${orderItems.toString().replace(/,/g, '')}`
       }
-      data.lanes[0].cards.push(newOrder);
+
+      // Simple switch case to determine which lane the order belongs to.
+      // 0: ORDERED, 1: IN_PROGRESS, 2: DELIVERING, 3: COMPLETED 4: CANCELLED
+      switch (order.status) {
+        case 'ORDERED':
+          data.lanes[0].cards.push(newOrder);
+          break;
+        case 'IN_PROGRESS':
+          data.lanes[1].cards.push(newOrder);
+          break;
+        case 'DELIVERING':
+          data.lanes[2].cards.push(newOrder);
+          break;
+        case 'COMPLETED':
+          data.lanes[3].cards.push(newOrder);
+          break;
+        case 'CANCELLED':
+          data.lanes[4].cards.push(newOrder);
+
+          break;
+        default:
+          data.lanes[0].cards.push(newOrder);
+          break;
+      }
+
+      this.getTotalValue();
       return newOrder;
     });
   }
 
+  componentDidUpdate(prevProps, prevState){
+    if(this.state.testOrders !== prevState.testOrders){
+      this.getTotalValue();
+    }
+  }
+
+  // Get the total value of goods sold. We check if the status of the order is equal to COMPLETED, then we break down each items and it's quanity, and get the told value of that item, then we sum it up with the rest of the order. Lastly we sum up all orders to get the grand total.
+  getTotalValue(){
+    const completedOrders = this.state.testOrders.filter(order => order.status === 'COMPLETED');
+    const reducer = (accumulator, currentValue) => accumulator + currentValue;
+    const total = completedOrders.map(orders => {
+      const costOfOrder = orders.orderItems.map(orderItem => {
+        const orderCost = orderItem.quanity * orderItem.price;
+        return orderCost;
+      });
+      return Number(costOfOrder.reduce(reducer).toFixed(2));
+    });
+    const totalValue =  total.reduce(reducer).toFixed(2);
+
+    this.setState({totalPrice: totalValue});
+  }
+
   handleDragEnd = (cardId, sourceLaneId, targetLaneId) => {
-    console.log('drag ended')
-    console.log(`cardId: ${cardId}`)
-    console.log(`sourceLaneId: ${sourceLaneId}`)
-    console.log(`targetLaneId: ${targetLaneId}`)
+    // console.log('drag ended')
+    // console.log(`cardId: ${cardId}`)
+    // console.log(`sourceLaneId: ${sourceLaneId}`)
+    // console.log(`targetLaneId: ${targetLaneId}`)
+
+    // Update the state of the order.
+    const order = this.state.testOrders[cardId];
+    order.status = targetLaneId;
+
+    const updateOrder = updateObject(this.state.testOrders, {
+      [cardId]: order
+    });
+
+    this.setState({testOrders: Object.values(updateOrder)});
   }
 
   shouldReceiveNewData = nextData => {
     console.log('Board has changed')
     console.log('nextData', nextData)
-  }
-
-  handleCardDelete = (cardId, laneId) => {
-    console.log(`Card: ${cardId} deleted from lane: ${laneId}`)
   }
 
   handleCardAdd = (card, laneId) => {
